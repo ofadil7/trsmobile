@@ -1,0 +1,143 @@
+{
+  "cli": {
+    "appVersionSource": "app.json"
+  },
+  "expo": {
+    "name": "Brancardage",
+    "slug": "trs",
+    "platforms": ["ios", "android", "web"],
+    "notification": {
+      "vapidPublicKey": "BLE_GENERATED_VAPID_KEY_HERE"
+    },
+    "scheme": "brancardier",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/trs-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2ae2327d-8651-4e9e-9233-10d927fec8fc",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "UIBackgroundModes": ["remote-notification", "processing", "background-fetch", "fetch"],
+      "bundleIdentifier": "com.trs.brancardier",
+      "supportsTablet": true,
+      "usesAppleSignIn": true,
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification", "processing", "fetch"],
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "UIViewControllerBasedStatusBarAppearance": false,
+          "NSExceptionDomains": {
+            "trs.optimizehealthsolutions.ma": {
+              "NSIncludesSubdomains": true,
+              "NSTemporaryExceptionAllowsInsecureHTTPLoads": true,
+              "NSTemporaryExceptionRequiresForwardSecrecy": false,
+              "NSAllowsInsecureHTTPLoads": true
+            }
+          }
+        },
+        "ITSAppUsesNonExemptEncryption": false,
+        "googleServicesFile": "./GoogleService-Info.plist"
+      },
+      "usesCleartextTraffic": true,
+      "deploymentTarget": "14.0",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.trs.brancardier",
+      "notification": {
+        "icon": "./assets/images/trs-logo.png",
+        "color": "#ff0000"
+      },
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "usesCleartextTraffic": true,
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "INTERNET",
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK",
+        "VIBRATE",
+        "com.google.android.c2dm.permission.RECEIVE",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "translucent": true,
+      "minSdkVersion": 21,
+      "targetSdkVersion": 34,
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://trs.optimizehealthsolutions.ma/api",
+      "eas": {
+        "projectId": "15a0980b-325b-43f0-a4c1-5fb85a29e2c9"
+      }
+    },
+    "owner": "xilias",
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/trs-logo.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "mode": "production",
+          "android": {
+            "useNextNotificationsApi": true,
+            "notificationColor": "#1D2E5C",
+            "enableBackgroundNotification": true,
+            "vibrate": true,
+            "sound": true
+          },
+          "ios": {
+            "allowsAlert": true,
+            "allowsBadge": true,
+            "allowsSound": true,
+            "criticalAlerts": {
+              "shouldPlaySound": true,
+              "shouldSetBadge": true,
+              "shouldShowAlert": true
+            }
+          }
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow TRS to access your Face ID biometric data."
+        }
+      ],
+      [
+        "expo-background-fetch",
+        {
+          "minimumInterval": 15,
+          "stopOnTerminate": false,
+          "startOnBoot": true
+        }
+      ]
+    ]
+  }
+}
