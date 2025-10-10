@@ -24,8 +24,7 @@
       },
       "ios": {
         "simulator": false,
-        "autoIncrement": true,
-        "withoutCredentials": true
+        "autoIncrement": true
       }
     }
   },
