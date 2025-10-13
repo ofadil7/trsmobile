@@ -51,7 +51,7 @@
         "googleServicesFile": "./GoogleService-Info.plist"
       },
       "usesCleartextTraffic": true,
-      "deploymentTarget": "14.0",
+      "deploymentTarget": "15.1",
       "config": {
         "usesNonExemptEncryption": false
       }
