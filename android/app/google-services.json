@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "532630297001",
+    "project_id": "brancardage-16b48",
+    "storage_bucket": "brancardage-16b48.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:532630297001:android:b37f620ef85f3867550cb8",
+        "android_client_info": {
+          "package_name": "com.trs.brancardier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIHwMbrw3upRrY9RvLqs1XIafFVUSEDAY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

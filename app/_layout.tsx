@@ -4,17 +4,15 @@ import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { styles } from '../constants/Styles';
-import { TopBarProvider, useTopBar } from '../contexts/TopBarContext';
-import { useNotifications } from '../hooks/useNotifications';
-import { RootState, store } from '../store';
+import { store } from '../store';
 import { useAppSelector } from '../store/hooks';
-import { backgroundSyncService } from '../tasks/backgroundSync.service';
-import { registerBackgroundNotificationTask } from '../tasks/notifications.task';
+import { initFCM } from '@/store/firebase/fcmService';
 import { ResponsiveLayout } from './components/ResponsiveLayout';
 import { SideBar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
+import { TopBarProvider, useTopBar } from '../contexts/TopBarContext';
 import { WebMetaTags } from './components/WebMetaTags';
+import { styles } from '../constants/Styles';
 
 export default function RootLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -43,39 +41,24 @@ function LayoutContent({
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }) {
-  useNotifications();
+  const userId = useAppSelector(state => state.auth.auth?.id);
 
   useEffect(() => {
-    // Initialize background services
-    const initializeBackgroundServices = async () => {
-      if (Platform.OS !== 'web') {
-        await registerBackgroundNotificationTask();
-        backgroundSyncService.startPeriodicSync(10 * 60 * 1000);
-      }
-    };
+    if (Platform.OS !== 'web' && userId) {
+      initFCM(userId);
+    }
+  }, [userId]);
 
-    initializeBackgroundServices();
-
-    return () => {
-      // Cleanup
-      backgroundSyncService.stopPeriodicSync();
-    };
-  }, []);
+  const { hideTopBar } = useTopBar();
+  const { isAuthenticated } = useAppSelector(state => state.auth);
 
   return (
     <ResponsiveLayout style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-        <TopBarWrapper onOpenSidebar={() => setSidebarOpen(true)} />
+        {!hideTopBar && isAuthenticated && <TopBar onOpenSidebar={() => setSidebarOpen(true)} />}
         <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <Slot />
       </SafeAreaView>
     </ResponsiveLayout>
   );
-}
-
-function TopBarWrapper({ onOpenSidebar }: { onOpenSidebar: () => void }) {
-  const { hideTopBar } = useTopBar();
-  const { isAuthenticated } = useAppSelector((state: RootState) => state.auth);
-  if (hideTopBar || !isAuthenticated) return null;
-  return <TopBar onOpenSidebar={onOpenSidebar} />;
 }

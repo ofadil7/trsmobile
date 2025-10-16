@@ -42,9 +42,9 @@ export default function Notifications() {
       console.error('Échec du marquage comme lu:', err);
     }
   };
-
   const handleNotificationClick = (notification: NotificationTarget) => {
-    router.push('/demandes' + notification.notificationInstance.payloadJson.redirectUrl);
+    console.log("notification", notification);
+    router.push('/demande' + notification.notificationInstance.payloadJson.redirectUrl);
     if (!notification.isRead) {
       handleMarkAsRead(notification.numero);
     }

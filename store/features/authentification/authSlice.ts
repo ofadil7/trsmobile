@@ -8,6 +8,8 @@ import { Platform } from 'react-native';
 
 import { deleteToken, getToken, saveToken } from '../../services/tokenService';
 import { registerDeviceToken, removeDeviceToken } from '../notifications/notificationsSlice';
+import messaging from '@react-native-firebase/messaging';
+import { initFCM } from '@/store/firebase/fcmService';
 
 interface ErrorResponse {
   message?: string;
@@ -54,23 +56,21 @@ const initialState: AuthState = {
   toastOpen: false,
 };
 
-// --- Push token helper ---
-async function getExpoPushToken(): Promise<string | null> {
-  if (!Device.isDevice || Platform.OS === 'web') return null;
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-  if (finalStatus !== 'granted') {
-    console.warn('Push notification permissions not granted');
+async function getFCMToken(): Promise<string | null> {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  if (!enabled) {
+    console.warn('Push notification permission not granted');
     return null;
   }
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
+
+  const token = await messaging().getToken();
+  console.log('✅ FCM Token:', token);
   return token;
 }
-
 // --- Thunks ---
 
 export const login = createAsyncThunk<
@@ -89,23 +89,10 @@ export const login = createAsyncThunk<
     await saveToken('id', data.id.toString(), loginRequest.rememberMe);
     await saveToken('email', data.email, loginRequest.rememberMe);
 
+    await initFCM(data.id);
+
     dispatch(setToastOpen({ isOpen: true, message: 'Connexion réussie!' }));
 
-    try {
-      const devicePushToken = await getExpoPushToken();
-      if (devicePushToken) {
-        await saveToken('devicePush', devicePushToken, loginRequest.rememberMe);
-        await dispatch(
-          registerDeviceToken({
-            userId: data.id,
-            token: devicePushToken,
-            platform: Platform.OS === 'android' ? 'Android' : Platform.OS === 'ios' ? 'iOS' : 'Web',
-          }),
-        );
-      }
-    } catch (err) {
-      console.warn('Failed to register push token:', err);
-    }
 
     return data;
   } catch (error: unknown) {

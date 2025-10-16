@@ -14,11 +14,11 @@
         "buildType": "apk"
       },
       "ios": {
-        "simulator": true
+        "simulator": true,
+        "developmentClient": true
       }
     },
     "production": {
-      "distribution": "internal",
       "android": {
         "buildType": "apk"
       },

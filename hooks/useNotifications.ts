@@ -342,7 +342,7 @@ export const useNotifications = () => {
           console.log('Notification tapped:', data);
 
           if (data?.redirectUrl) {
-            router.push(data.redirectUrl);
+            router.push(`demande${data.redirectUrl}`);
           } else if (data?.screen) {
             router.push(`/${data.screen}`);
           }

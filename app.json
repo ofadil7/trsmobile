@@ -4,8 +4,12 @@
   },
   "expo": {
     "name": "Brancardage",
-    "slug": "trs",
-    "platforms": ["ios", "android", "web"],
+    "slug": "trs-brancardage",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "notification": {
       "vapidPublicKey": "BLE_GENERATED_VAPID_KEY_HERE"
     },
@@ -23,18 +27,30 @@
       "url": "https://u.expo.dev/2ae2327d-8651-4e9e-9233-10d927fec8fc",
       "fallbackToCacheTimeout": 0
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "assetBundlePatterns": ["**/*"],
+    "runtimeVersion": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "UIBackgroundModes": ["remote-notification", "processing", "background-fetch", "fetch"],
+      "entitlements": {
+        "aps-environment": "production"
+      },
+      "UIBackgroundModes": [
+        "remote-notification",
+        "processing",
+        "background-fetch",
+        "fetch"
+      ],
       "bundleIdentifier": "com.trs.brancardier",
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification", "processing", "fetch"],
+        "UIBackgroundModes": [
+          "remote-notification",
+          "processing",
+          "fetch"
+        ],
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "UIViewControllerBasedStatusBarAppearance": false,
@@ -51,7 +67,7 @@
         "googleServicesFile": "./GoogleService-Info.plist"
       },
       "usesCleartextTraffic": true,
-      "deploymentTarget": "15.1",
+      "deploymentTarget": "14.0",
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -78,7 +94,9 @@
         "com.google.android.c2dm.permission.RECEIVE",
         "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.USE_EXACT_ALARM",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK"
       ],
       "translucent": true,
       "minSdkVersion": 21,
@@ -92,11 +110,13 @@
     "extra": {
       "apiUrl": "http://trs.optimizehealthsolutions.ma/api",
       "eas": {
-        "projectId": "15a0980b-325b-43f0-a4c1-5fb85a29e2c9"
+        "projectId": "38916db4-9913-4f88-a21a-6976fbff6664"
       }
     },
-    "owner": "xilias",
+    "owner": "brancardage",
     "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
       [
         "expo-notifications",
         {
