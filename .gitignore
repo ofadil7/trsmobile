@@ -40,3 +40,5 @@ app-example
 google-service-account.json
 google-service-account.json
 brancardage-16b48-firebase-adminsdk-fbsvc-79f4987cd9.json
+*.json
+*-firebase-adminsdk-*.json
