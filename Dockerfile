@@ -36,17 +36,22 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
 # Accept Android licenses
 RUN yes | sdkmanager --licenses || true
 
-# Install common Android SDK platforms and build-tools
+# Install SDK tools and build-tools
 RUN sdkmanager --update && \
     sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
 
 # ----------------------------
-# Install Expo and EAS
+# Install Expo & EAS CLI globally
 # ----------------------------
 RUN npm install -g expo-cli eas-cli
 
+# ----------------------------
+# Firebase CLI (optional for FCM)
+# ----------------------------
+RUN npm install -g firebase-tools
+
 # ============================================
-#  STAGE 2: Install dependencies
+#  STAGE 2: Dependencies
 # ============================================
 FROM base AS deps
 
@@ -54,7 +59,7 @@ COPY package*.json ./
 RUN npm install
 
 # ============================================
-#  STAGE 3: Build the project
+#  STAGE 3: Build
 # ============================================
 FROM deps AS build
 
@@ -63,20 +68,19 @@ COPY . .
 ENV EXPO_NO_INTERACTIVE=true
 ENV CI=true
 
-# Run Expo doctor to validate setup (ignore non-fatal warnings)
+# Validate setup
 RUN expo doctor || true
 
-# ---- Build static web production ----
+# Build static web version
 RUN npm run build:web
 
+# Create output directory
+RUN mkdir -p /app/builds
+
 # ---- Build Android APK locally ----
-# This will output the APK in /app/builds/app.apk
-RUN mkdir -p /app/builds && \
-    eas build --platform android --local --output /app/builds/app.apk --non-interactive || true
+RUN eas build --platform android --local --non-interactive --output /app/builds/app.apk || true
 
 # ---- Build iOS IPA remotely via EAS Cloud ----
-# Requires valid Apple credentials configured in eas.json or environment
-# The build will be done remotely and .ipa can be downloaded after
 RUN eas build --platform ios --non-interactive || true
 
 # ============================================
@@ -89,4 +93,5 @@ COPY --from=build /app /app
 
 EXPOSE 8081 19000 19001 19002
 
+# Default to Expo dev server
 CMD ["npm", "start"]
