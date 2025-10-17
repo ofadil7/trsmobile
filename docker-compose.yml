@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  dev:
+    build: .
+    container_name: trs-mobile-dev
+    ports:
+      - "8081:8081"
+      - "19000-19002:19000-19002"
+    volumes:
+      - .:/app
+    command: npm start
+
+  build-android:
+    build: .
+    container_name: trs-mobile-build-android
+    volumes:
+      - .:/app
+    command: eas build --platform android --local --output ./builds/app.apk --non-interactive
+
+  build-ios:
+    build: .
+    container_name: trs-mobile-build-ios
+    volumes:
+      - .:/app
+    command: eas build --platform ios --non-interactive

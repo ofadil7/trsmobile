@@ -1,91 +1,97 @@
-# ----------------------------
-# STAGE 1: Base Node environment
-# ----------------------------
+# ============================================
+#  STAGE 1: Base Image (Node + Android + Expo)
+# ============================================
 FROM node:18-bullseye AS base
 
-# Set working directory
 WORKDIR /app
 
-# Set timezone and locale
 ENV TZ=UTC \
-    LANG=C.UTF-8
+    LANG=C.UTF-8 \
+    ANDROID_SDK_ROOT=/usr/local/android-sdk \
+    PATH="$PATH:/usr/local/android-sdk/platform-tools:/usr/local/android-sdk/cmdline-tools/bin"
 
-# Install system dependencies (required by Expo CLI and EAS)
+# ----------------------------
+# Install dependencies
+# ----------------------------
 RUN apt-get update && apt-get install -y \
     openjdk-17-jdk \
     git \
+    curl \
+    unzip \
     watchman \
     python3 \
     python3-pip \
     bash \
-    unzip \
     gradle \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Android SDK tools
-ENV ANDROID_SDK_ROOT=/usr/local/android-sdk
+# ----------------------------
+# Install Android SDK
+# ----------------------------
 RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
     cd ${ANDROID_SDK_ROOT}/cmdline-tools && \
     curl -sSL https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o tools.zip && \
     unzip tools.zip -d . && rm tools.zip
 
-# Add Android SDK to PATH
-ENV PATH="${ANDROID_SDK_ROOT}/cmdline-tools/bin:${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
-
 # Accept Android licenses
 RUN yes | sdkmanager --licenses || true
 
-# Install Expo CLI and EAS CLI globally
+# Install SDK tools and build-tools
+RUN sdkmanager --update && \
+    sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
+
+# ----------------------------
+# Install Expo & EAS CLI globally
+# ----------------------------
 RUN npm install -g expo-cli eas-cli
 
 # ----------------------------
-# STAGE 2: Dependencies
+# Firebase CLI (optional for FCM)
 # ----------------------------
+RUN npm install -g firebase-tools
+
+# ============================================
+#  STAGE 2: Dependencies
+# ============================================
 FROM base AS deps
 
-# Copy only package files
 COPY package*.json ./
-
-# Install node_modules (cached separately)
 RUN npm install
 
-# ----------------------------
-# STAGE 3: Build
-# ----------------------------
+# ============================================
+#  STAGE 3: Build
+# ============================================
 FROM deps AS build
 
-# Copy all source files
 COPY . .
 
-# Environment variables for Expo build
 ENV EXPO_NO_INTERACTIVE=true
 ENV CI=true
 
-# Validate project setup
+# Validate setup
 RUN expo doctor || true
 
-# Build production web version
+# Build static web version
 RUN npm run build:web
 
-# Optionally build APK for Android (using EAS)
-# Uncomment the next line if you have credentials set up
-# RUN eas build --platform android --non-interactive --local --output /app/builds/android.apk
+# Create output directory
+RUN mkdir -p /app/builds
 
-# ----------------------------
-# STAGE 4: Runtime (for development or serving web)
-# ----------------------------
+# ---- Build Android APK locally ----
+RUN eas build --platform android --local --non-interactive --output /app/builds/app.apk || true
+
+# ---- Build iOS IPA remotely via EAS Cloud ----
+RUN eas build --platform ios --non-interactive || true
+
+# ============================================
+#  STAGE 4: Runtime for Expo Development
+# ============================================
 FROM base AS runtime
 
 WORKDIR /app
-
-# Copy built files from build stage
 COPY --from=build /app /app
 
-# Expose Expo development ports
-EXPOSE 8081
-EXPOSE 19000
-EXPOSE 19001
-EXPOSE 19002
+EXPOSE 8081 19000 19001 19002
 
-# Default command starts Expo in dev mode
+# Default to Expo dev server
 CMD ["npm", "start"]
